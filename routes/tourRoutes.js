@@ -5,6 +5,13 @@ const router = express.Router();
 
 //router.param('id', tourController.checkID); -> used for tourControllerJson.js
 
+
+// alias the route
+
+router
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTours, tourController.getAllTours);
+
 router
   .route('/')
   .get(tourController.getAllTours)
