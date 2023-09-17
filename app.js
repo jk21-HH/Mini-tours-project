@@ -12,13 +12,7 @@ const app = express();
 // Midellwares
 
 app.use(morgan('dev'));
-
 app.use(express.json());
-
-app.use((req, res, next) => {
-  console.log('Hii from middleware');
-  next();
-});
 
 app.use((req, res, next) => {
   req.requsetTime = new Date().toISOString();
