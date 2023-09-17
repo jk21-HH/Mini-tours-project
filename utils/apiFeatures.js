@@ -24,7 +24,7 @@ class APIFeatures {
   sort() {
     // add sorting
 
-    if (this.queryString) {
+    if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
     } else {
@@ -37,7 +37,7 @@ class APIFeatures {
   limitFields() {
     // remove fields that are not needed for the client
 
-    if (this.queryString) {
+    if (this.queryString.fields) {
       const fields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(fields);
     } else {
