@@ -19,6 +19,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
     passwordChangedAt: req.body.passwordChangedAt,
+    role: req.body.role,
   });
 
   const token = signToken(newUser._id);
@@ -102,3 +103,19 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  // closure - the return is the method and the res is passed to the restrictTo variable
+
+  return (req, res, next) => {
+    // roles ['admin', 'lead-guide']
+
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to preform this action', 403)
+      );
+    }
+
+    next();
+  };
+};
