@@ -14,6 +14,19 @@ const signToken = (id) => {
   });
 };
 
+const createAndSendToken = (user, message, statusCode, res) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    message,
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -24,16 +37,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
 
-  const token = signToken(newUser._id);
+  const message = 'User created successfully';
 
-  res.status(200).json({
-    status: 'success',
-    message: 'User created successfully',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createAndSendToken(newUser, message, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -49,13 +55,9 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  const token = signToken(user._id);
+  const message = 'User logged in successfully';
 
-  res.status(200).json({
-    status: 'success',
-    message: 'User logged in successfully',
-    token,
-  });
+  createAndSendToken(user, message, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -198,11 +200,34 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // Update changedPasswordAt property fore the user
   // Log the user in, send JWT
 
-  const token = signToken(user._id);
+  const message = 'Password has been reset successfully';
 
-  res.status(200).json({
-    status: 'success',
-    message: 'User logged in successfully',
-    token,
-  });
+  createAndSendToken(user, message, 200, res);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const { oldPassword, newPassword, newConfirmPassword } = req.body;
+
+  // Get the user from collection
+
+  const user = await User.findById(req.user.id).select('+password');
+
+  // Check if the POST password is correct
+
+  if (!(await user.correctPassword(oldPassword, user.password))) {
+    return next(new AppError('Passwords are not identical', 401));
+  }
+
+  // If yes update the password
+
+  user.password = newPassword;
+  user.confirmPassword = newConfirmPassword;
+
+  await user.save();
+
+  // Log user in, send JWT
+
+  const message = 'Password has been updated successfully';
+
+  createAndSendToken(user, message, 200, res);
 });
