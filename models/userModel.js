@@ -66,6 +66,17 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) {
+    return next();
+  }
+
+  // Ensure that the token is always created after the password change
+
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 // Availble on all documents of certain collection
 
 userSchema.methods.correctPassword = async function (
@@ -100,11 +111,6 @@ userSchema.methods.createPasswordResetToken = function () {
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
-  console.log(
-    { resetToken },
-    this.passwordResetToken,
-    this.passwordResetExpires
-  );
   return resetToken;
 };
 
