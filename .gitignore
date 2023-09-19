@@ -3,3 +3,4 @@ dev-data/
 public/
 config.env
 .eslintrc.json
+controllers/tourControllerJson.js
