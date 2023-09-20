@@ -30,7 +30,9 @@ const limiter = rateLimit({
 
 app.use('/api', limiter);
 
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Body parser, reading data from body into req.body - max payload size
 
