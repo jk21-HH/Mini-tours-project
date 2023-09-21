@@ -10,10 +10,10 @@ process.on('uncaughtException', (err) => {
 dotenv.config({ path: './config.env' });
 const app = require('./app');
 
-const LOCAL_DB = process.env.DATABASE_LOCAL;
+const DB = process.env.DATABASE_DEV;
 
 mongoose
-  .connect(LOCAL_DB, {
+  .connect(DB, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,

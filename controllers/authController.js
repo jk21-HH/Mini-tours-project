@@ -24,6 +24,10 @@ const createAndSendToken = (user, message, statusCode, res) => {
     httpOnly: true,
   };
 
+  // if (process.env.NODE_ENV === 'production') {
+  //   cookieOptions.secure = true;
+  // }
+
   res.cookie('jwt', token, cookieOptions);
 
   user.password = undefined;
@@ -56,15 +60,21 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
+  // Check if email and password exist
+
   if (!email || !password) {
     return next(new AppError('Please provide email and password', 400));
   }
+
+  // Check if user exists && password is correct
 
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
+
+  // If everything ok, send token to client
 
   const message = 'User logged in successfully';
 
@@ -87,7 +97,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('Please log in to get access', 401));
   }
 
-  // Verify token
+  // Verification token
 
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 

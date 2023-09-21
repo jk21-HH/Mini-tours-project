@@ -30,10 +30,6 @@ const limiter = rateLimit({
 
 app.use('/api', limiter);
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
-
 // Body parser, reading data from body into req.body - max payload size
 
 app.use(express.json({ limit: '10kb' }));
@@ -68,6 +64,12 @@ app.use((req, res, next) => {
   req.requsetTime = new Date().toISOString();
   next();
 });
+
+// HTTP request logger middleware
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Routes
 
